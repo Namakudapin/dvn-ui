@@ -1,25 +1,39 @@
+"use client";
+
 import React from "react";
-import { Loader2, ExternalLink, Trash2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "outline" | "destructive" | "success" | "warning" | "disabled" | "loading" | "link" | "ghost" | "icon";
+  size?: "small" | "medium" | "large";
   color?: string;
   textColor?: string;
   isLoading?: boolean;
   icon?: React.ReactNode;
+  iconPosition?: "left" | "right"; // 🔹 Support ikon di kiri & kanan
 }
 
 const Button: React.FC<ButtonProps> = ({ 
   variant = "primary", 
+  size = "medium", 
   color, 
   textColor, 
   isLoading, 
   icon, 
+  iconPosition = "left",
   className, 
   children, 
   ...props 
 }) => {
-  const baseStyles = "px-4 py-2 rounded-md font-medium transition flex items-center justify-center space-x-2";
+  const baseStyles = `rounded-md font-medium transition flex items-center justify-center space-x-2 
+                      duration-200 active:scale-95`; // 🔹 Animasi hover & klik
+  
+  const sizes = {
+    small: "px-3 py-1 text-sm",
+    medium: "px-4 py-2 text-base",
+    large: "px-6 py-3 text-lg",
+  };
+
   const variants = {
     primary: color ? "" : "bg-white text-black border border-gray-300 hover:bg-gray-100",
     secondary: "bg-gray-600 text-white hover:bg-gray-700",
@@ -36,17 +50,19 @@ const Button: React.FC<ButtonProps> = ({
 
   return (
     <button
-      className={`${baseStyles} ${variants[variant]} ${className}`}
+      className={`${baseStyles} ${sizes[size]} ${variants[variant]} ${className}`}
       style={{
         backgroundColor: color || undefined,
         color: textColor || (variant === "primary" ? "black" : "white"),
+        border: color ? "none" : undefined, // ✅ Hapus border jika custom color
       }}
       disabled={variant === "disabled" || isLoading}
       {...props}
     >
       {isLoading && <Loader2 className="w-5 h-5 animate-spin" />}
-      {icon && <span>{icon}</span>}
+      {!isLoading && icon && iconPosition === "left" && <span>{icon}</span>}
       {children && <span>{children}</span>}
+      {!isLoading && icon && iconPosition === "right" && <span>{icon}</span>}
     </button>
   );
 };
